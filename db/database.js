@@ -1,12 +1,20 @@
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 const path = require('path');
 
-// On Render, use a persistent disk mounted at /var/data if available,
-// otherwise fall back to local file (fine for dev, but will reset on redeploy without a disk).
 const dbPath = process.env.DB_PATH || path.join(__dirname, 'scripts.db');
-const db = new Database(dbPath);
+const rawDb = new DatabaseSync(dbPath);
 
-db.pragma('journal_mode = WAL');
+const db = {
+  exec: (sql) => rawDb.exec(sql),
+  prepare: (sql) => {
+    const stmt = rawDb.prepare(sql);
+    return {
+      run: (...args) => stmt.run(...args),
+      get: (...args) => stmt.get(...args),
+      all: (...args) => stmt.all(...args)
+    };
+  }
+};
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS scripts (
@@ -23,7 +31,6 @@ db.exec(`
   )
 `);
 
-// Helper: turn a YouTube URL (watch, youtu.be, shorts, embed) into its video ID
 function extractYouTubeId(url) {
   if (!url) return null;
   const patterns = [
@@ -39,8 +46,6 @@ function extractYouTubeId(url) {
   return null;
 }
 
-// Highest-quality thumbnail that YouTube always generates (maxresdefault
-// isn't guaranteed for every video, so hqdefault is the safe universal default)
 function thumbnailFromYouTubeUrl(url, quality = 'hqdefault') {
   const id = extractYouTubeId(url);
   if (!id) return null;
