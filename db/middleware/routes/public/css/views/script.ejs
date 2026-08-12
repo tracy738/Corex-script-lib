@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= script.title %> — Corex Script</title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/topbar') %>
+
+  <div class="shell">
+    <div class="script-header">
+      <a href="/" class="back-link">&larr; back to all scripts</a>
+      <h1 class="script-title"><%= script.title %></h1>
+      <div class="script-tags">
+        <% if (script.game) { %><span class="tag game-tag"><%= script.game %></span><% } %>
+        <span class="tag"><%= script.language %></span>
+        <span class="tag"><%= script.views %> views</span>
+      </div>
+      <% if (script.description) { %>
+        <p class="script-desc"><%= script.description %></p>
+      <% } %>
+    </div>
+
+    <% 
+      let ytId = null;
+      if (script.youtube_url) {
+        const patterns = [
+          /(?:youtube\.com\/watch\?v=)([\w-]{11})/,
+          /(?:youtu\.be\/)([\w-]{11})/,
+          /(?:youtube\.com\/shorts\/)([\w-]{11})/,
+          /(?:youtube\.com\/embed\/)([\w-]{11})/
+        ];
+        for (const re of patterns) {
+          const m = script.youtube_url.match(re);
+          if (m) { ytId = m[1]; break; }
+        }
+      }
+    %>
+    <% if (ytId) { %>
+      <div class="video-embed">
+        <iframe
+          src="https://www.youtube.com/embed/<%= ytId %>"
+          title="Script demo video"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    <% } %>
+
+    <div class="code-block">
+      <div class="code-block-header">
+        <span>script.<%= script.language %></span>
+        <button class="copy-btn" id="copyBtn" onclick="copyScript()">copy</button>
+      </div>
+      <pre id="scriptContent"><code><%= script.content %></code></pre>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="copyScript()">copy script</button>
+      <a href="/script/<%= script.id %>/raw" target="_blank" class="btn btn-outline">view raw</a>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    function copyScript() {
+      const content = document.getElementById('scriptContent').innerText;
+      navigator.clipboard.writeText(content).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const original = btn.textContent;
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+  </script>
+</body>
+</html>
