@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Corex Script — script archive</title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/topbar') %>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-eyebrow">personal script archive</div>
+      <h1 class="hero-title">Every script,<br><span class="accent">one place.</span></h1>
+      <p class="hero-sub">
+        A private archive of scripts I've written and tested. Browse, copy, done.
+      </p>
+      <form class="search-form" action="/" method="get">
+        <input
+          class="search-input"
+          type="text"
+          name="q"
+          placeholder="search by title or game..."
+          value="<%= search %>"
+        >
+        <button class="btn btn-outline" type="submit">search</button>
+      </form>
+    </section>
+
+    <div class="section-label">
+      <% if (search) { %>
+        results for "<%= search %>" (<%= scripts.length %>)
+      <% } else { %>
+        all scripts (<%= scripts.length %>)
+      <% } %>
+    </div>
+
+    <% if (scripts.length === 0) { %>
+      <div class="empty-state">
+        <% if (search) { %>
+          nothing matches "<%= search %>". try a different search.
+        <% } else { %>
+          no scripts uploaded yet.
+        <% } %>
+      </div>
+    <% } else { %>
+      <div class="grid">
+        <% scripts.forEach(function(script) { %>
+          <a href="/script/<%= script.id %>" class="card">
+            <div class="card-thumb <%= script.thumbnail_url ? '' : 'no-thumb' %>">
+              <% if (script.thumbnail_url) { %>
+                <img src="<%= script.thumbnail_url %>" alt="<%= script.title %>" loading="lazy">
+                <% if (script.youtube_url) { %>
+                  <span class="play-badge">▶ preview</span>
+                <% } %>
+              <% } %>
+            </div>
+            <div class="card-body">
+              <% if (script.game) { %>
+                <div class="card-game"><%= script.game %></div>
+              <% } %>
+              <div class="card-title"><%= script.title %></div>
+              <% if (script.description) { %>
+                <div class="card-desc"><%= script.description %></div>
+              <% } %>
+              <div class="card-meta">
+                <span><%= script.language %></span>
+                <span><%= script.views %> views</span>
+              </div>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>
