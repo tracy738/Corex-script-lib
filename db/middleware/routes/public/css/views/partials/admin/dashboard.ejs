@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Corex Staff Only — dashboard</title>
+  <%- include('../partials/head') %>
+</head>
+<body>
+  <%- include('../partials/topbar') %>
+
+  <div class="shell">
+    <div class="admin-topbar">
+      <div class="admin-title">Dashboard <span class="badge">admin</span></div>
+      <div class="admin-actions">
+        <a href="/admin/upload" class="btn btn-primary">+ new script</a>
+        <form action="/admin/logout" method="post" style="display:inline;">
+          <button type="submit" class="btn btn-outline">log out</button>
+        </form>
+      </div>
+    </div>
+
+    <% if (scripts.length === 0) { %>
+      <div class="empty-state">
+        no scripts yet. <a href="/admin/upload" style="color: var(--signal);">upload your first one</a>.
+      </div>
+    <% } else { %>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>thumb</th>
+            <th>title</th>
+            <th>game</th>
+            <th>views</th>
+            <th>uploaded</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% scripts.forEach(function(script) { %>
+            <tr>
+              <td>
+                <% if (script.thumbnail_url) { %>
+                  <img src="<%= script.thumbnail_url %>" class="admin-thumb" alt="">
+                <% } else { %>
+                  <div class="admin-thumb"></div>
+                <% } %>
+              </td>
+              <td><a href="/script/<%= script.id %>" target="_blank" style="color: var(--text);"><%= script.title %></a></td>
+              <td style="color: var(--text-dim);"><%= script.game || '—' %></td>
+              <td style="color: var(--text-dim);"><%= script.views %></td>
+              <td style="color: var(--text-faint); font-family: var(--mono); font-size: 12px;"><%= script.created_at %></td>
+              <td>
+                <div class="row-actions">
+                  <a href="/admin/edit/<%= script.id %>" class="icon-btn">edit</a>
+                  <form action="/admin/delete/<%= script.id %>" method="post" onsubmit="return confirm('Delete this script permanently?');">
+                    <button type="submit" class="icon-btn danger">delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>
